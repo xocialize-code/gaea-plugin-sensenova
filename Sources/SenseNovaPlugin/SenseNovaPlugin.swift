@@ -305,7 +305,7 @@ public let senseNovaPlugin = GaeaPluginDefinition(
     version: "0.1.0",
     minGaea: "0.2.0",
     team: "CFZS6RXUCP",
-    repo: "https://github.com/xocialize/gaea-plugin-sensenova",
+    repo: "https://github.com/xocialize-code/gaea-plugin-sensenova",
     title: "SenseNova-U1.5",
     summary: "SenseTime's SenseNova-U1.5 8B MoT (Apache-2.0): a unified Mixture-of-Transformers drawing in pixel space "
         + "with rectified flow, no VAE. Text-to-image (the 50-step base with think mode, and two 8-step distillations) "

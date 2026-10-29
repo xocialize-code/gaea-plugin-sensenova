@@ -15,7 +15,7 @@ let package = Package(
     platforms: [.macOS(.v26)], // mlx-engine-swift's MLXToolKit requires macOS 26
     dependencies: [
         kitPath.map { .package(path: $0) }
-            ?? .package(url: "https://github.com/xocialize/gaea-plugin-kit.git", from: "0.3.0"),
+            ?? .package(url: "https://github.com/xocialize-code/gaea-plugin-kit.git", from: "0.3.0"),
         .package(url: "https://github.com/xocialize/sensenova-u1-swift.git", exact: "0.5.3"),
         .package(url: "https://github.com/xocialize/mlx-engine-swift.git", from: "0.72.0"),
     ],
