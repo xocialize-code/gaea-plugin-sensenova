@@ -9,7 +9,8 @@ import SenseNovaPlugin
 // `editRequest`). A cold run then warm ones; the first image is written to --out, and one JSON line of timings is
 // printed. Not part of the plugin bundle.
 //
-//   sensenova-inproc [--model sensenova-u1 | sensenova-u1-fast | sensenova-u1-fast-v1] [--lane bf16 | int8 | int4]
+//   sensenova-inproc [--model sensenova-u1 | sensenova-u1-fast | sensenova-u1-fast-v1 | sensenova-u1-tailsteer]
+//                    [--lane bf16 | int8 | int4]
 //                    [--prompt <text>] [--negative <text>] [--width 1024] [--height 1024] [--steps N] [--guidance G]
 //                    [--seed 42] [--think] [--image <png>] [--models-root <dir>] [--out <png>] [--runs 2]
 //

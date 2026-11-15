@@ -15,9 +15,14 @@ let package = Package(
     platforms: [.macOS(.v26)], // mlx-engine-swift's MLXToolKit requires macOS 26
     dependencies: [
         kitPath.map { .package(path: $0) }
-            ?? .package(url: "https://github.com/xocialize-code/gaea-plugin-kit.git", from: "0.3.0"),
-        .package(url: "https://github.com/xocialize/sensenova-u1-swift.git", exact: "0.5.3"),
-        .package(url: "https://github.com/xocialize/mlx-engine-swift.git", from: "0.73.1"),
+            ?? .package(url: "https://github.com/xocialize-code/gaea-plugin-kit.git", from: "0.14.0"),
+        .package(url: "https://github.com/xocialize/sensenova-u1-swift.git", exact: "0.7.0"),
+        // Exactly the engine GaeaPluginKit 0.14.0 and Gaea 1.8.0 are on (contract 1.64.0). A later 0.x could add fields
+        // to the worker's memory report that GPP v1's closed schema doesn't carry.
+        .package(url: "https://github.com/xocialize/mlx-engine-swift.git", exact: "0.79.0"),
+        // The fleet's mlx-swift fork, as mlx-engine-swift takes it: 0.32.4 is upstream 0.32.3 plus the
+        // _updateInternal leak fix (ml-explore/mlx-swift#501; AB-D-0208). A root line naming ml-explore's URL would win.
+        .package(url: "https://github.com/xocialize/mlx-swift", exact: "0.32.4"),
     ],
     targets: [
         .target(
@@ -44,6 +49,11 @@ let package = Package(
                 .product(name: "MLXServeCore", package: "mlx-engine-swift"),
             ],
             swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+        .testTarget(
+            name: "SenseNovaPluginTests",
+            dependencies: ["SenseNovaPlugin", .product(name: "GaeaPluginKit", package: "gaea-plugin-kit"),
+                           .product(name: "GaeaProtocol", package: "gaea-plugin-kit"), .product(name: "MLXToolKit", package: "mlx-engine-swift")]
         ),
     ]
 )

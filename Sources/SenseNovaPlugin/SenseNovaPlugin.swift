@@ -8,10 +8,12 @@ import MLXToolKit
 // gaea-plugin-sensenova: SenseTime's SenseNova-U1.5 8B MoT (Apache-2.0 weights, MIT port) as a Gaea research plugin, on
 // sensenova-u1-swift through MLXServeEngine (Gaea AB-T-0374).
 //
-// One unified model (pixel-space rectified flow, no VAE), three checkpoints, as mlx-image-runtime's catalog serves them:
+// One unified model (pixel-space rectified flow, no VAE), four checkpoints:
 // - sensenova-u1: the 50-step base with CFG 4, and `think`, a reasoning pass before a text-to-image render;
 // - sensenova-u1-fast: the 8-step distillation on upstream's V2 adapter, without CFG;
-// - sensenova-u1-fast-v1: the same on the V1 adapter, kept so existing seeds keep reproducing.
+// - sensenova-u1-fast-v1: the same on the V1 adapter, kept so existing seeds keep reproducing;
+// - sensenova-u1-tailsteer (0.2.0): the V2 8-step recipe over SenseNova's TailSteer finetune, which drifts less when
+//   each edit's result is edited again. One lane: a 4-bit build loses the benefit, so the package has none.
 // Each generates and edits from one reference. The package also answers visual questions (imageAnalysis) on every
 // tier; that is not offered yet.
 //
@@ -28,12 +30,14 @@ public enum Model: String, CaseIterable, Sendable {
     case base = "sensenova-u1"
     case fast = "sensenova-u1-fast"
     case fastV1 = "sensenova-u1-fast-v1"
+    case tailSteer = "sensenova-u1-tailsteer"
 
     public var title: String {
         switch self {
         case .base: "SenseNova-U1.5"
         case .fast: "SenseNova-U1.5 8-step"
         case .fastV1: "SenseNova-U1.5 8-step (V1 adapter)"
+        case .tailSteer: "SenseNova-U1.5 TailSteer 8-step"
         }
     }
 
@@ -43,6 +47,7 @@ public enum Model: String, CaseIterable, Sendable {
         case .base: [(.int8, .q8), (.bf16, .bf16)]
         case .fast: [(.int8, .fast8V2), (.int4, .fast4V2)]
         case .fastV1: [(.int8, .fast8), (.int4, .fast4)]
+        case .tailSteer: [(.int8, .fast8V2TailSteer)]
         }
     }
 
@@ -247,8 +252,11 @@ public func lanes(_ model: Model) -> [LaneDefinition] {
     }
 }
 
-let apache: JSONValue = ["spdx": "Apache-2.0", "commercial_use": true,
-                         "terms_url": "https://huggingface.co/sensenova/SenseNova-U1.5-8B-MoT"]
+/// Apache-2.0 on every checkpoint; the terms are the checkpoint's own page (TailSteer is a separate upstream repo).
+func license(_ model: Model) -> JSONValue {
+    ["spdx": "Apache-2.0", "commercial_use": true,
+     "terms_url": .string("https://huggingface.co/sensenova/SenseNova-U1.5-8B-MoT" + (model == .tailSteer ? "-TailSteer" : ""))]
+}
 let limits = PluginManifest.Limits(maxPixels: maxPixels, minSide: minSide, maxSide: maxSide, sizeMultiple: grid)
 let editLimits = PluginManifest.Limits(maxPixels: maxPixels, minSide: minSide, maxSide: maxSide, sizeMultiple: grid,
                                        maxImages: maxReferences)
@@ -290,10 +298,15 @@ func offerModel(_ model: Model, edit: Bool) -> JSONValue {
     case (.fastV1, false): "The V1 8-step adapter, kept so existing seeds reproduce; sensenova-u1-fast's V2 adapter clips "
         + "and oversharpens less. No CFG: negative prompts do nothing."
     case (.fastV1, true): "Instruction editing from one image in 8 steps on the V1 adapter. Drawn at the image's size."
+    case (.tailSteer, false): "The 8-step V2 recipe over the TailSteer finetune: draws as sensenova-u1-fast does, slightly "
+        + "softer. Use it when the picture will be edited afterwards. No CFG: negative prompts do nothing."
+    case (.tailSteer, true): "Instruction editing for results that get edited again: the TailSteer finetune keeps the rest "
+        + "of the picture steadier over a chain of edits than sensenova-u1-fast. 8 steps without CFG, drawn at the "
+        + "image's size."
     }
     let tiers: JSONValue = model.distilled ? ["draft", "standard"] : ["standard", "best"]
     return [
-        "id": .string(model.rawValue), "title": .string(model.title), "license": apache,
+        "id": .string(model.rawValue), "title": .string(model.title), "license": license(model),
         "memory_class": "large", "speed_class": .string(model.distilled ? "fast" : "slow"),
         "quality_tiers": tiers, "named_only": true,
         "notes": .string("Research plugin, named-only: runs only when a request names it. " + notes),
@@ -302,14 +315,15 @@ func offerModel(_ model: Model, edit: Bool) -> JSONValue {
 
 public let senseNovaPlugin = GaeaPluginDefinition(
     id: "com.xocialize.gaea.sensenova",
-    version: "0.1.1",
-    minGaea: "0.2.0",
+    version: "0.2.0",
+    minGaea: "1.8.0",
     team: "CFZS6RXUCP",
     repo: "https://github.com/xocialize-code/gaea-plugin-sensenova",
     title: "SenseNova-U1.5",
     summary: "SenseTime's SenseNova-U1.5 8B MoT (Apache-2.0): a unified Mixture-of-Transformers drawing in pixel space "
         + "with rectified flow, no VAE. Text-to-image (the 50-step base with think mode, and two 8-step distillations) "
-        + "and instruction editing from one image. A research plugin: every model is named-only.",
+        + "and instruction editing from one image, with a TailSteer model for chains of edits. A research plugin: every "
+        + "model is named-only.",
     license: "Apache-2.0",
     executable: "gaea-sensenova-worker",
     models: Model.allCases.map { model in
