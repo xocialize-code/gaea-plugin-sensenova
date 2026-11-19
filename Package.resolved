@@ -1,5 +1,5 @@
 {
-  "originHash" : "c4396f177cd68d2dfbd84e63593963a3977cc05d58dff6f3b8666cebe99c44d7",
+  "originHash" : "e877c08b1731adf7c0ec0fefb31491db8753997022eba27bb0d6ca389e30a98d",
   "pins" : [
     {
       "identity" : "designscaffold",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/xocialize-code/gaea-plugin-kit.git",
       "state" : {
-        "revision" : "51f3cf555a54cb3d936e4082efe8dc18246c172f",
-        "version" : "0.14.0"
+        "revision" : "234ed30af93a9d7f894cc34cfc42e8ffc40d042c",
+        "version" : "0.16.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/xocialize/mlx-engine-swift.git",
       "state" : {
-        "revision" : "d75f43b903b9b72a684c99d37b85768c274ecc38",
-        "version" : "0.79.0"
+        "revision" : "81fe1dbd248903df25fc7cb745b9d7ff0b844201",
+        "version" : "0.82.1"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/xocialize/mlx-exact-conv-swift",
       "state" : {
-        "revision" : "885f79331f84a6299440ac7f09823d9bafce7460",
-        "version" : "0.1.1"
+        "revision" : "042fc99b2e769fc89f949ae47efcd2891954160b",
+        "version" : "0.1.2"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/xocialize/mlx-swift",
       "state" : {
-        "revision" : "4650bd13ac20acdd80396efbca52c6f336e6ceb2",
-        "version" : "0.32.4"
+        "revision" : "1ebd51c28f6d3af13c54d933faf0b1181b41a1ef",
+        "version" : "0.33.1"
       }
     },
     {
